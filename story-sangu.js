@@ -9,6 +9,7 @@ window.STORY = {
   title: "三顾茅庐前",
   subtitle: "你是刘备。徐庶走了，卧龙还没请到——历史给你留了四道门。",
   firstStory: true, // 第一局：白身开局，不出粘卡屏，直接进
+  deeds: { xumin: ["民望"], linxue: ["军望"], letter_bimen: ["失信"] }, // 通关蒸名声：旗→名，下一局只认名不认事
   scenes: [
     {
       act: 1, kind: "main",

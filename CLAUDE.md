@@ -17,11 +17,11 @@ war_shape: zero-dependency history-rewriting choice game. Double-click an `.html
 
 - `scenes[]`: `{act 1-4, kind: main|side, title, text, options[], variants[]?}`. Main options score +2, side +1. Scores hidden from player (`ren`/`ba`/`zhi`).
 - Every option: `text`, `score`, `echo` (one lead-in sentence rendered at the top of the next scene; last scene's echo leads the ending). Options may add `flag`, `letter`, or `need: {dim, min}` (archive-gated special option, hidden unless met).
-- `variants[]`: first-match conditional scene text `{ifFlag|ifLetter, text, echoes?[]}`. Rule: default text must hold under ALL upstream choices; otherwise add a variant. Never fix continuity by editing options/scores.
+- `variants[]`: first-match conditional scene text `{ifFlag|ifLetter|ifTag|ifTagAbsent, text, echoes?[]}`. `ifTag` matches reputation tags from the previous run's card; `ifTagAbsent` matches card-present-but-tag-missing (three visible states: tagged / card-without-tag / no-card). Rule: default text must hold under ALL upstream choices; otherwise add a variant. Never fix continuity by editing options/scores.
 - `letters{} `: delayed-consequence dialogue `{fireAct, text}`, fired once as plain story paragraph when reached. No highlight boxes.
 - `endings{ren,ba,zhi}` + `endingExtras{}` + `flagOrder[]`. Ending = highest score, tie goes to `lastMainDim`. Flags/letters only add ending detail lines, never change the ending.
 - `openings{}`: keyed by previous-run ending name + `default`. First scene prepends the matching line based on the parsed archive card.
-- Archive format (stable, parse-compatible): `【war_shape通关档案】<ending>｜仁<n>霸<n>智<n>`. Engine also persists it to `localStorage["warshape_card"]`; manual paste is the cross-device fallback. Scores reset each story; the card grants openings + special options, never points.
+- Archive format (stable, parse-compatible): `【war_shape通关档案】<ending>｜仁<n>霸<n>智<n>(｜名声<t1,t2>)?`. Stories declare `deeds: {flagName:[tags]}` to distill set flags into reputation tags (current vocabulary, locked: 民望/军望/失信 — adding a 4th doubles checker configs, needs user approval). Engine also persists it to `localStorage["warshape_card"]`; manual paste is the cross-device fallback. Scores reset each story; the card grants openings + special options + tag skins, never points.
 
 ## Verify before reporting done
 

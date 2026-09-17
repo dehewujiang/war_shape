@@ -3,7 +3,7 @@
  * [OUTPUT]: 双击即玩的文字选择游戏：读卡开场/进度/选项/承接句/结局判定/通关档案
  * [POS]: war_shape 的引擎文件；各 story-xxx.js 是内容，本文件是玩法。加新剧本只需配新 STORY 数据 + 一个同类 html 壳
  * [PROTOCOL]: 改机制（新分数/新算法/读卡规则）改本文件；改剧情去改对应 story-xxx.js
- * 约定：开场可粘上一局通关档案（没有也能玩）；档案只换开场白和专属选项，不加分——每局的秤清零重称
+ * 约定：开场可粘上一局通关档案（没有也能玩）；档案换开场白、名声回响和专属选项，不加分——每局的秤清零重称
  */
 (function () {
   var S = window.STORY;
@@ -41,11 +41,15 @@
     });
   }
 
-  // 读卡：认得格式就收，认不得当没卡（不卡死）
+  // 读卡：段式，缺段=空，未知段忽略——老卡新卡互读，永不过期
+  // 全格式：【war_shape通关档案】名｜仁n霸n智n(｜名声t1,t2)?(｜仓…)?(｜土…)?(｜季…)?（仓土季将来即插）
   function parseCard(txt) {
     var m = /【war_shape通关档案】(.+?)｜仁(\d+)霸(\d+)智(\d+)/.exec(txt);
     if (!m) return null;
-    return { name: m[1], ren: +m[2], ba: +m[3], zhi: +m[4] };
+    var card = { name: m[1], ren: +m[2], ba: +m[3], zhi: +m[4], tags: [] };
+    var tm = /｜名声([^｜]+)/.exec(txt);
+    if (tm) card.tags = tm[1].split(",").filter(function (t) { return t; });
+    return card;
   }
 
   function render() {
@@ -62,10 +66,13 @@
       if (op) html += "<p class='echo'>" + op + "</p>";
     }
     // 条件文本：命中第一条 variant 即用（含其承接句覆盖）；主框只留故事
+    // ifTag 认的是上局蒸出来的名声（不是具体事件）：有 tag 才用，无卡无 tag 走默认
     var bodyText = sc.text, echoSet = null;
     (sc.variants || []).forEach(function (v) {
       var hit = (v.ifFlag && state.flags[v.ifFlag]) ||
-        (v.ifLetter && state.letters.indexOf(v.ifLetter) >= 0);
+        (v.ifLetter && state.letters.indexOf(v.ifLetter) >= 0) ||
+        (v.ifTag && state.archive && (state.archive.tags || []).indexOf(v.ifTag) >= 0) ||
+        (v.ifTagAbsent && state.archive && (state.archive.tags || []).indexOf(v.ifTagAbsent) < 0);
       if (hit && bodyText === sc.text) { bodyText = v.text; echoSet = v.echoes || null; }
     });
     sc._echoes = echoSet;
@@ -137,8 +144,13 @@
     html += "<div class='row'><button class='big' id='again'>再走一次</button>"
       + "<button class='big ghost' id='copy'>复制档案</button></div></div>";
     app.innerHTML = html;
-    // 通关即存卡：下一剧本开场自动读到，不用玩家动手搬
-    var cardTxt = "【war_shape通关档案】" + ed.name + "｜仁" + s.ren + "霸" + s.ba + "智" + s.zhi;
+    // 通关即存卡：本局大事按 deeds 蒸成名声跟走；无名声不拼段，老卡格式不变
+    var tags = [];
+    Object.keys(S.deeds || {}).forEach(function (f) {
+      if (state.flags[f]) (S.deeds[f] || []).forEach(function (t) { if (tags.indexOf(t) < 0) tags.push(t); });
+    });
+    var cardTxt = "【war_shape通关档案】" + ed.name + "｜仁" + s.ren + "霸" + s.ba + "智" + s.zhi
+      + (tags.length ? "｜名声" + tags.join(",") : "");
     saveCard(cardTxt);
     document.getElementById("again").addEventListener("click", function () { startGame(state.bootTxt || ""); });
     document.getElementById("copy").addEventListener("click", function () {

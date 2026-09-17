@@ -11,7 +11,7 @@ const ROOT = __dirname;
 // 改剧本（增删选项/场景）后，同步改这里；数字对不上即失败，逼人确认是预期变化还是意外断裂
 const EXPECTED = {
   "story-sangu.js": 4374,
-  "story-changban.js": 78732,
+  "story-changban.js": 583929,
 };
 
 function loadStory(file) {
@@ -31,9 +31,11 @@ function visibleOptions(sc, archive) {
   });
 }
 
-function pickVariant(sc, flags, letters) {
+function pickVariant(sc, flags, letters, archive) {
   for (const v of (sc.variants || [])) {
-    const hit = (v.ifFlag && flags[v.ifFlag]) || (v.ifLetter && letters.indexOf(v.ifLetter) >= 0);
+    const hit = (v.ifFlag && flags[v.ifFlag]) || (v.ifLetter && letters.indexOf(v.ifLetter) >= 0) ||
+      (v.ifTag && archive && (archive.tags || []).indexOf(v.ifTag) >= 0) ||
+      (v.ifTagAbsent && archive && (archive.tags || []).indexOf(v.ifTagAbsent) < 0);
     if (hit) return v;
   }
   return null;
@@ -58,9 +60,11 @@ function walk(S, file, picks, archive, hits) {
   for (let i = 0; i < S.scenes.length; i++) {
     const sc = S.scenes[i];
     if (typeof sc.text !== "string" || !sc.text) condemn(file + " S" + (i + 1) + ": 正文空");
-    const v = pickVariant(sc, flags, letters);
+    const v = pickVariant(sc, flags, letters, archive);
     if (v) {
-      hits.variants.add(file + "#" + (i + 1) + ":" + (v.ifFlag || v.ifLetter));
+      hits.variants.add(file + "#" + (i + 1) + ":" + (v.ifFlag || v.ifLetter || v.ifTag || ("缺" + v.ifTagAbsent)));
+      if (v.ifTag) hits.tagged.add(file + "#" + (i + 1) + ":" + v.ifTag);
+      if (v.ifTagAbsent) hits.tagged.add(file + "#" + (i + 1) + ":缺" + v.ifTagAbsent);
       if (v.echoes && v.echoes.length !== sc.options.length)
         condemn(file + " S" + (i + 1) + ": variant echoes 长度 " + v.echoes.length + " ≠ 选项数 " + sc.options.length);
     }
@@ -112,7 +116,10 @@ function walk(S, file, picks, archive, hits) {
   hits.endings.add(file + ":" + dim);
   hits.ranges[file + ":" + dim] = hits.ranges[file + ":" + dim] || [];
   hits.ranges[file + ":" + dim].push([score.ren, score.ba, score.zhi]);
-  return { name: S.endings[dim].name, ren: score.ren, ba: score.ba, zhi: score.zhi };
+  // 蒸名声：与 engine renderEnding 同逻辑，本局之旗→名
+  const tags = [];
+  Object.keys(S.deeds || {}).forEach(f => { if (flags[f]) (S.deeds[f] || []).forEach(t => { if (tags.indexOf(t) < 0) tags.push(t); }); });
+  return { name: S.endings[dim].name, ren: score.ren, ba: score.ba, zhi: score.zhi, tags };
 }
 
 // 引用闭合：静态检查，不跑路
@@ -132,6 +139,10 @@ function checkRefs(file, S) {
       condemn(file + " S" + (i + 1) + ": variant 引了不存在的旗 " + v.ifFlag);
     if (v.ifLetter && !letterIds.has(v.ifLetter))
       condemn(file + " S" + (i + 1) + ": variant 引了不存在的信 " + v.ifLetter);
+    if (v.ifTag && !tagUniverse.has(v.ifTag))
+      condemn(file + " S" + (i + 1) + ": variant 认了没人产出过的名声 " + v.ifTag);
+    if (v.ifTagAbsent && !tagUniverse.has(v.ifTagAbsent))
+      condemn(file + " S" + (i + 1) + ": variant 缺认了没人产出过的名声 " + v.ifTagAbsent);
   }));
   S.scenes.forEach((sc, i) => sc.options.forEach(op => {
     if (op.need && ["ren", "ba", "zhi"].indexOf(op.need.dim) < 0)
@@ -152,7 +163,7 @@ function checkRefs(file, S) {
 }
 
 function freshHits() {
-  return { variants: new Set(), buried: new Set(), fired: new Set(), gates: new Set(), endings: new Set(), openings: new Set(), ranges: {} };
+  return { variants: new Set(), buried: new Set(), fired: new Set(), gates: new Set(), endings: new Set(), openings: new Set(), tagged: new Set(), ranges: {} };
 }
 
 // DFS 枚举全部可见路径
@@ -175,7 +186,7 @@ function enumerate(S, file, archive) {
 }
 
 function mergeHits(dst, src) {
-  ["variants", "buried", "fired", "gates", "endings", "openings"].forEach(k => src[k].forEach(v => dst[k].add(v)));
+  ["variants", "buried", "fired", "gates", "endings", "openings", "tagged"].forEach(k => src[k].forEach(v => dst[k].add(v)));
   Object.entries(src.ranges).forEach(([k, v]) => { dst.ranges[k] = (dst.ranges[k] || []).concat(v); });
 }
 
@@ -184,17 +195,26 @@ const STORIES = [
   { file: "story-sangu.js", archives: [null] },
   {
     file: "story-changban.js",
-    archives: [null]
-      .concat(["人和之主", "立威之主", "谋定之主"].flatMap(name =>
-        [{ dim: "ren", min: 0 }, { dim: "ren", min: 8 }, { dim: "ba", min: 8 }].map(g =>
-          ({ name, ren: g.dim === "ren" ? g.min : 0, ba: g.dim === "ba" ? g.min : 0, zhi: 0 })))
-      ),
+    // 73 配置 = 无卡 + 3开场 × 3门(无/仁/霸) × 8名声子集
+    archives: [null].concat(
+      ["人和之主", "立威之主", "谋定之主"].flatMap(name =>
+        [{ ren: 0, ba: 0 }, { ren: 8, ba: 0 }, { ren: 0, ba: 8 }].flatMap(g =>
+          [0, 1, 2, 3, 4, 5, 6, 7].map(mask => ({
+            name, ren: g.ren, ba: g.ba, zhi: 0,
+            tags: ["民望", "军望", "失信"].filter((t, i) => mask & (1 << i)),
+          })))
+      )
+    ),
   },
 ];
 
 const allCards = [];
+const LOADED = {};
+STORIES.forEach(s => { LOADED[s.file] = loadStory(s.file); });
+const tagUniverse = new Set();
+Object.keys(LOADED).forEach(f => Object.values(LOADED[f].deeds || {}).forEach(ts => ts.forEach(t => tagUniverse.add(t))));
 STORIES.filter(s => !onlyFiles.length || onlyFiles.includes(s.file)).forEach(({ file, archives }) => {
-  const S = loadStory(file);
+  const S = LOADED[file];
   checkRefs(file, S);
   const total = freshHits();
   let sum = 0;
@@ -208,8 +228,14 @@ STORIES.filter(s => !onlyFiles.length || onlyFiles.includes(s.file)).forEach(({ 
   if (sum !== EXPECTED[file]) condemn(file + ": 路数 " + sum + " ≠ 期望 " + EXPECTED[file] + "（剧本改了就同步改 EXPECTED）");
   // 覆盖率死刑
   S.scenes.forEach((sc, i) => (sc.variants || []).forEach(v => {
-    const key = file + "#" + (i + 1) + ":" + (v.ifFlag || v.ifLetter);
+    const key = file + "#" + (i + 1) + ":" + (v.ifFlag || v.ifLetter || v.ifTag || ("缺" + v.ifTagAbsent));
     if (!total.variants.has(key)) condemn(file + " S" + (i + 1) + ": variant 从没命中，是死代码");
+  }));
+  S.scenes.forEach((sc, i) => (sc.variants || []).forEach(v => {
+    if (v.ifTag && !total.tagged.has(file + "#" + (i + 1) + ":" + v.ifTag))
+      condemn(file + " S" + (i + 1) + ": 名声 variant 从没在有 tag 时命中");
+    if (v.ifTagAbsent && !total.tagged.has(file + "#" + (i + 1) + ":缺" + v.ifTagAbsent))
+      condemn(file + " S" + (i + 1) + ": 缺名声 variant 从没在有卡无 tag 时命中");
   }));
   Object.keys(S.letters || {}).forEach(id => {
     if (!total.buried.has(file + ":" + id)) condemn(file + ": 信 " + id + " 从没被埋过");
@@ -227,8 +253,8 @@ STORIES.filter(s => !onlyFiles.length || onlyFiles.includes(s.file)).forEach(({ 
   // 人看的清单
   console.log("  结局: " + ["ren", "ba", "zhi"].map(d => {
     const rs = total.ranges[file + ":" + d] || [];
-    const mins = [0, 1, 2].map(k => Math.min(...rs.map(r => r[k])));
-    const maxs = [0, 1, 2].map(k => Math.max(...rs.map(r => r[k])));
+    const mins = [Infinity, Infinity, Infinity], maxs = [-Infinity, -Infinity, -Infinity];
+    rs.forEach(r => r.forEach((v, k) => { if (v < mins[k]) mins[k] = v; if (v > maxs[k]) maxs[k] = v; }));
     return d + "×" + rs.length + "路(仁" + mins[0] + "-" + maxs[0] + "/霸" + mins[1] + "-" + maxs[1] + "/智" + mins[2] + "-" + maxs[2] + ")";
   }).join(" "));
   const rewritten = new Set([...total.variants].map(k => k.split(":")[0]));
@@ -240,7 +266,7 @@ STORIES.filter(s => !onlyFiles.length || onlyFiles.includes(s.file)).forEach(({ 
 if (!onlyFiles.length) {
   const seen = new Map();
   allCards.forEach(c => {
-    const k = c.name + "|仁" + c.ren + "霸" + c.ba + "智" + c.zhi;
+    const k = c.name + "|仁" + c.ren + "霸" + c.ba + "智" + c.zhi + "｜" + (c.tags || []).join(",");
     seen.set(k, (seen.get(k) || 0) + 1);
   });
   console.log("三顾真实产出卡去重: " + seen.size + " 种");
@@ -250,7 +276,7 @@ if (!onlyFiles.length) {
     if (!["人和之主", "立威之主", "谋定之主"].includes(m[1])) { condemn("跨局: 未知结局名 " + m[1]); bad++; }
     if (+m[2] >= 8 && +m[3] >= 8) { condemn("跨局: 出现双开卡 " + k + "（配置空间要+1）"); bad++; }
   });
-  if (!bad) console.log("  全部落在 10 配置内，无双开卡");
+  if (!bad) console.log("  全部落在 73 配置内，无双开卡");
 }
 
 if (failures.length) {
