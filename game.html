@@ -1,6 +1,6 @@
 <!--
   [INPUT]: 依赖 story-sangu.js 提供的 window.STORY（场景/分数/开关/信件/结局）
-  [OUTPUT]: 双击即玩的文字选择游戏：进度/选项/即时反馈/结局判定/通关档案
+  [OUTPUT]: 双击即玩的文字选择游戏：进度/选项/承接句/结局判定/通关档案
   [POS]: war_shape 的引擎文件；story-sangu.js 是内容，本文件是玩法。以后加剧本只需换 STORY 数据
   [PROTOCOL]: 改机制（新分数/新算法）改本文件；改剧情去改 story-sangu.js
 -->
@@ -20,11 +20,10 @@
   .scene { background: #241e18; border: 1px solid #4a3f30; border-radius: 10px; padding: 18px; margin-bottom: 12px; }
   .scene h2 { font-size: 17px; margin: 0 0 10px; color: #f0c96a; }
   .scene p { line-height: 1.9; font-size: 15px; }
-  .letter { background: #2e2620; border-left: 3px solid #f0c96a; padding: 10px 12px; margin: 10px 0; font-size: 14px; line-height: 1.8; }
+  .echo { color: #c9b896; }
   button.opt { display: block; width: 100%; text-align: left; margin: 8px 0; padding: 12px; font-size: 15px;
     background: #33291f; color: #e8dcc8; border: 1px solid #6a5a44; border-radius: 8px; cursor: pointer; }
   button.opt:hover { background: #453823; border-color: #f0c96a; }
-  .feedback { color: #9fd08a; font-size: 14px; min-height: 22px; margin: 6px 0; }
   .card { background: #241e18; border: 2px solid #f0c96a; border-radius: 10px; padding: 18px; }
   .card h2 { color: #f0c96a; margin-top: 0; }
   .card li { line-height: 1.9; font-size: 14px; }
@@ -43,7 +42,7 @@
   var state;
 
   function reset() {
-    state = { i: 0, score: { ren: 0, ba: 0, zhi: 0 }, flags: {}, letters: [], lastMainDim: "ren" };
+    state = { i: 0, score: { ren: 0, ba: 0, zhi: 0 }, flags: {}, letters: [], lastMainDim: "ren", echo: null };
     render();
   }
 
@@ -56,17 +55,20 @@
     var totalActs = 4;
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
     html += "<div class='bar'><span>第 " + sc.act + " 幕 / 共 " + totalActs + " 幕</span></div>";
-    html += "<div class='scene'><h2>" + sc.title + "</h2><p>" + sc.text + "</p>";
-    // 拆信：之前埋的信，到了约定的幕才兑现
+    html += "<div class='scene'><h2>" + sc.title + "</h2>";
+    // 上一选择的承接句：长进正文开头，主框只留故事
+    if (state.echo) { html += "<p class='echo'>" + state.echo + "</p>"; state.echo = null; }
+    html += "<p>" + sc.text + "</p>";
+    // 拆信：之前埋的信，到了约定的幕就变成正文里的一段对话
     state.letters.forEach(function (id) {
       var L = S.letters[id];
       if (!state["fired_" + id] && sc.act >= L.fireAct) {
-        html += "<div class='letter'>" + L.text + "</div>";
+        html += "<p>" + L.text + "</p>";
         state["fired_" + id] = true;
         state.flags["letter_" + id] = true;
       }
     });
-    html += "<div class='feedback' id='fb'></div><div id='opts'>";
+    html += "<div id='opts'>";
     sc.options.forEach(function (op, idx) {
       html += "<button class='opt' data-idx='" + idx + "'>" + op.text + "</button>";
     });
@@ -91,7 +93,8 @@
       });
       state.lastMainDim = best;
     }
-    document.getElementById("fb").textContent = "→ " + op.feedback;
+    // 承接句留给下一幕开头，节奏仍由玩者亲手点"继续"
+    state.echo = op.echo || null;
     var opts = document.getElementById("opts");
     opts.querySelectorAll("button").forEach(function (b) { b.disabled = true; b.style.opacity = "0.55"; });
     // 反馈由玩者亲手点"继续"再往下走，不自动跳
@@ -111,7 +114,9 @@
     if (tied) dim = state.lastMainDim;
     var ed = S.endings[dim];
     var html = "<h1>结局 · " + ed.name + "</h1>";
-    html += "<div class='card'><p style='line-height:2'>" + ed.text + "</p><ul>";
+    // 最后一幕的承接句变成结局的开头引子
+    var lead = state.echo ? "<p class='echo'>" + state.echo + "</p>" : "";
+    html += "<div class='card'>" + lead + "<p style='line-height:2'>" + ed.text + "</p><ul>";
     S.flagOrder.forEach(function (f) {
       if (state.flags[f] && S.endingExtras[f]) html += "<li>" + S.endingExtras[f] + "</li>";
     });
