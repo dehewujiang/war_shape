@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/js-check.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/story-check.js"
+          }
+        ]
+      }
+    ]
+  }
+}
