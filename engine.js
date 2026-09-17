@@ -13,12 +13,17 @@
 
   function dimName(d) { return d === "ren" ? "仁" : d === "ba" ? "霸" : "智"; }
 
-  // 开场：粘卡读档，无卡直接开始
+  // 存卡/读卡：同一台电脑同一浏览器全自动；换设备才需要手动粘（localStorage 够不着的地方）
+  function saveCard(txt) { try { window.localStorage.setItem("warshape_card", txt); } catch (e) {} }
+  function loadSaved() { try { return window.localStorage.getItem("warshape_card") || ""; } catch (e) { return ""; } }
+
+  // 开场：有存档自动填好，直接开局；想重开就清空；换设备来的手动粘
   function showStart() {
     var app = document.getElementById("app");
+    var saved = loadSaved();
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
-    html += "<div class='scene'><p style='color:#a89880;font-size:14px'>有上一局的通关档案？粘进来，这一局的人会记得你是谁。没有就空着，直接开局。</p>";
-    html += "<textarea id='cardin' rows='3' style='width:100%;box-sizing:border-box;background:#1a1512;color:#e8dcc8;border:1px solid #4a3f30;border-radius:8px;padding:10px;font-size:14px' placeholder='【war_shape通关档案】…'></textarea>";
+    html += "<div class='scene'><p style='color:#a89880;font-size:14px'>" + (saved ? "找到上一局档案，已填好，直接开局；想重开就清空。" : "有上一局的通关档案？粘进来，这一局的人会记得你是谁。没有就空着，直接开局。") + "</p>";
+    html += "<textarea id='cardin' rows='3' style='width:100%;box-sizing:border-box;background:#1a1512;color:#e8dcc8;border:1px solid #4a3f30;border-radius:8px;padding:10px;font-size:14px' placeholder='【war_shape通关档案】…'>" + saved + "</textarea>";
     html += "<div class='row'><button class='big' id='start'>开局</button></div></div>";
     app.innerHTML = html;
     document.getElementById("start").addEventListener("click", function () {
@@ -124,9 +129,12 @@
     html += "<div class='row'><button class='big' id='again'>再走一次</button>"
       + "<button class='big ghost' id='copy'>复制档案</button></div></div>";
     app.innerHTML = html;
+    // 通关即存卡：下一剧本开场自动读到，不用玩家动手搬
+    var cardTxt = "【war_shape通关档案】" + ed.name + "｜仁" + s.ren + "霸" + s.ba + "智" + s.zhi;
+    saveCard(cardTxt);
     document.getElementById("again").addEventListener("click", reset);
     document.getElementById("copy").addEventListener("click", function () {
-      var txt = "【war_shape通关档案】" + ed.name + "｜仁" + s.ren + "霸" + s.ba + "智" + s.zhi;
+      var txt = cardTxt;
       if (navigator.clipboard) navigator.clipboard.writeText(txt);
       this.textContent = "已复制！";
     });
