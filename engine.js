@@ -33,7 +33,7 @@
     var app = document.getElementById("app");
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
     html += "<div class='scene'><p style='color:#a89880;font-size:14px'>没找到上一局档案——同一台电脑玩过会自动带过来，不用你动手；换设备的话，把档案粘进来再开局。</p>";
-    html += "<textarea id='cardin' rows='3' style='width:100%;box-sizing:border-box;background:#1a1512;color:#e8dcc8;border:1px solid #4a3f30;border-radius:8px;padding:10px;font-size:14px' placeholder='【war_shape通关档案】…'></textarea>";
+    html += "<textarea id='cardin' class='cardin' rows='3' placeholder='【war_shape通关档案】…'></textarea>";
     html += "<div class='row'><button class='big' id='start'>开局</button></div></div>";
     app.innerHTML = html;
     document.getElementById("start").addEventListener("click", function () {
