@@ -10,6 +10,7 @@ war_shape: zero-dependency history-rewriting choice game. Double-click an `.html
 - `story-xxx.js` — one per story, sets `window.STORY`. Changing plot goes here, never in the engine.
 - `game.html` / `changban.html` — thin shells: title + CSS + two `<script>` tags (story, then engine). New story = copy shell, swap the two references.
 - `玩法说明.txt` — player-facing manual in plain Chinese. Update it whenever mechanics change.
+- `check.js` — exhaustive machine judge (`node check.js`, zero deps). Enumerates every path × archive config, fails non-zero on: dead ends, options that move nothing, dangling refs, misaligned echoes, dead code, unreachable endings, cross-story card mismatch. Proves itself by fault injection (break a temp copy → must fail naming it). Engine/story semantics changes must update its simulator + EXPECTED counts.
 - `memory/` — project memory (TODO/decisions/project/session). Architecture decisions live in `memory/decisions.md` as ADR entries; check it before overturning past choices.
 
 ## STORY contract (story files must follow this)
