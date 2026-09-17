@@ -56,9 +56,16 @@
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
     html += "<div class='bar'><span>第 " + sc.act + " 幕 / 共 " + totalActs + " 幕</span></div>";
     html += "<div class='scene'><h2>" + sc.title + "</h2>";
-    // 上一选择的承接句：长进正文开头，主框只留故事
+    // 条件文本：命中第一条 variant 即用（含其承接句覆盖）；主框只留故事
+    var bodyText = sc.text, echoSet = null;
+    (sc.variants || []).forEach(function (v) {
+      var hit = (v.ifFlag && state.flags[v.ifFlag]) ||
+        (v.ifLetter && state.letters.indexOf(v.ifLetter) >= 0);
+      if (hit && bodyText === sc.text) { bodyText = v.text; echoSet = v.echoes || null; }
+    });
+    sc._echoes = echoSet;
     if (state.echo) { html += "<p class='echo'>" + state.echo + "</p>"; state.echo = null; }
-    html += "<p>" + sc.text + "</p>";
+    html += "<p>" + bodyText + "</p>";
     // 拆信：之前埋的信，到了约定的幕就变成正文里的一段对话
     state.letters.forEach(function (id) {
       var L = S.letters[id];
@@ -76,11 +83,11 @@
     app.innerHTML = html;
     var btns = app.querySelectorAll("button.opt");
     btns.forEach(function (b) {
-      b.addEventListener("click", function () { choose(sc, sc.options[+b.getAttribute("data-idx")]); });
+      b.addEventListener("click", function () { choose(sc, sc.options[+b.getAttribute("data-idx")], +b.getAttribute("data-idx")); });
     });
   }
 
-  function choose(sc, op) {
+  function choose(sc, op, idx) {
     Object.keys(op.score).forEach(function (k) { state.score[k] += op.score[k]; });
     if (op.flag) state.flags[op.flag] = true;
     if (op.letter && state.letters.indexOf(op.letter) < 0) state.letters.push(op.letter);
@@ -93,8 +100,9 @@
       });
       state.lastMainDim = best;
     }
-    // 承接句留给下一幕开头，节奏仍由玩者亲手点"继续"
-    state.echo = op.echo || null;
+    // 承接句留给下一幕开头（条件文本自带的覆盖优先），节奏仍由玩者亲手点"继续"
+    var echoList = sc._echoes || [];
+    state.echo = (echoList[idx] || op.echo) || null;
     var opts = document.getElementById("opts");
     opts.querySelectorAll("button").forEach(function (b) { b.disabled = true; b.style.opacity = "0.55"; });
     // 反馈由玩者亲手点"继续"再往下走，不自动跳
