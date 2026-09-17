@@ -55,8 +55,7 @@
     var sc = S.scenes[state.i];
     var totalActs = 4;
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
-    html += "<div class='bar'><span>第 " + sc.act + " 幕 / 共 " + totalActs + " 幕</span>"
-      + "<span>仁 " + state.score.ren + " · 霸 " + state.score.ba + " · 智 " + state.score.zhi + "</span></div>";
+    html += "<div class='bar'><span>第 " + sc.act + " 幕 / 共 " + totalActs + " 幕</span></div>";
     html += "<div class='scene'><h2>" + sc.title + "</h2><p>" + sc.text + "</p>";
     // 拆信：之前埋的信，到了约定的幕才兑现
     state.letters.forEach(function (id) {
@@ -64,7 +63,7 @@
       if (!state["fired_" + id] && sc.act >= L.fireAct) {
         html += "<div class='letter'>" + L.text + "</div>";
         state["fired_" + id] = true;
-        state.flags.jiuxin = true;
+        state.flags["letter_" + id] = true;
       }
     });
     html += "<div class='feedback' id='fb'></div><div id='opts'>";
@@ -111,7 +110,6 @@
     S.flagOrder.forEach(function (f) {
       if (state.flags[f] && S.endingExtras[f]) html += "<li>" + S.endingExtras[f] + "</li>";
     });
-    if (state.flags.jiuxin && S.endingExtras.jiuxin) html += "<li>" + S.endingExtras.jiuxin + "</li>";
     html += "</ul>";
     html += "<p style='color:#a89880;font-size:13px'>通关档案：仁 " + s.ren + " · 霸 " + s.ba + " · 智 " + s.zhi
       + "（" + ed.name + "）——下一剧本开场会读这张卡。</p>";
