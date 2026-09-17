@@ -105,12 +105,8 @@
     state.echo = (echoList[idx] || op.echo) || null;
     var opts = document.getElementById("opts");
     opts.querySelectorAll("button").forEach(function (b) { b.disabled = true; b.style.opacity = "0.55"; });
-    // 反馈由玩者亲手点"继续"再往下走，不自动跳
-    var next = document.createElement("button");
-    next.className = "opt";
-    next.textContent = "继续 →";
-    next.addEventListener("click", function () { state.i++; render(); });
-    opts.appendChild(next);
+    // 点选即走：按钮一沉，下一幕直接展开；节奏在"选哪个"，不在"点几次"
+    setTimeout(function () { state.i++; render(); }, 600);
   }
 
   function renderEnding(app) {
