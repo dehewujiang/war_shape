@@ -94,7 +94,12 @@
     document.getElementById("fb").textContent = "→ " + op.feedback;
     var opts = document.getElementById("opts");
     opts.querySelectorAll("button").forEach(function (b) { b.disabled = true; b.style.opacity = "0.55"; });
-    setTimeout(function () { state.i++; render(); }, 900);
+    // 反馈由玩者亲手点"继续"再往下走，不自动跳
+    var next = document.createElement("button");
+    next.className = "opt";
+    next.textContent = "继续 →";
+    next.addEventListener("click", function () { state.i++; render(); });
+    opts.appendChild(next);
   }
 
   function renderEnding(app) {

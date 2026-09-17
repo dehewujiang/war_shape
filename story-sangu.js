@@ -16,7 +16,7 @@ window.STORY = {
         { text: "单骑亲追，赤诚留人", score: { ren: 2 }, feedback: "将士们看在眼里，军心一暖。但你走后，新野城头一夜没敢点灯。",
           flag: "zhuixu", flagText: "你曾单骑追过徐庶" },
         { text: "派简雍快马去追，我坐镇新野", score: { zhi: 2 }, feedback: "大局不乱，情分也尽到了。只是简雍走后，你独自坐到了天亮。" },
-        { text: "不追了，整军备战要紧", score: { ba: 2 }, feedback: "乱世之中，实力才是请柬。当夜你下令四门戒严，新野像一块铁。",
+        { text: "不追了，整军备战要紧（徐庶此去，或不再回头）", score: { ba: 2 }, feedback: "乱世之中，实力才是请柬。当夜你下令四门戒严，新野像一块铁。",
           flag: "wuzhui", flagText: "徐庶走的那夜，你没有出城" }
       ]
     },
@@ -37,9 +37,9 @@ window.STORY = {
       options: [
         { text: "冒雪步行，亲自三顾", score: { ren: 2 }, feedback: "关张冻得跺脚，却没再多说一个字。",
           flag: "linxue", flagText: "兄弟陪你淋过雪" },
-        { text: "派关张代我去请，我留下屯田", score: { zhi: 2 }, feedback: "当时无人异议。只是你心里清楚：这一请，轻了。",
+        { text: "派关张代我去请，我留下屯田（或显怠慢）", score: { zhi: 2 }, feedback: "当时无人异议。只是你心里清楚：这一请，轻了。",
           letter: "qingman" },
-        { text: "先屯田安民，站稳脚跟再去", score: { ren: 1, ba: 1 }, feedback: "流民谢你。只是等你再到隆中，茅庐的门，多闭了三天。",
+        { text: "先屯田安民，站稳脚跟再去（茅庐或要多候几日）", score: { ren: 1, ba: 1 }, feedback: "流民谢你。只是等你再到隆中，茅庐的门，多闭了三天。",
           letter: "bimen" }
       ]
     },
