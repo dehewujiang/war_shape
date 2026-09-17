@@ -8,6 +8,7 @@
 window.STORY = {
   title: "三顾茅庐前",
   subtitle: "你是刘备。徐庶走了，卧龙还没请到——历史给你留了四道门。",
+  firstStory: true, // 第一局：白身开局，不出粘卡屏，直接进
   scenes: [
     {
       act: 1, kind: "main",
