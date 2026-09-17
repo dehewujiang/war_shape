@@ -62,6 +62,10 @@ window.STORY = {
       act: 2, kind: "side",
       title: "第二幕 · 道旁流民",
       text: "去隆中的山道上，一群流民拦住去路，跪求一口粮。他们挡了你的路，也挡了你的时辰。",
+      variants: [
+        { ifLetter: "qingman",
+          text: "你留在新野督办屯田。这日出城视察，城外前来投奔的流民越聚越多，见你的车架便跪下求粮——放粮，还是不放？" }
+      ],
       options: [
         { text: "下车搀扶，开仓分粮", score: { ren: 1 },
           echo: "流民散去时，还在叩首。",
