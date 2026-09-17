@@ -1,6 +1,7 @@
 # TODO
 ## #进行中
 - MVP 构建：game.html + story-sangu.js + 玩法说明.txt（2026-09-17）
+- 长坂坡剧本：story-changban.js + changban.html + 引擎读卡（2026-09-17，用户拍板刘备单身份先跑）
 ## #待办
 - 你亲手玩一遍（好不好玩你说了算）
 - 第一版推云端（等你点头）

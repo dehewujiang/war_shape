@@ -1,15 +1,15 @@
 <!--
-  [INPUT]: 依赖 engine.js（玩法） + story-sangu.js（剧本数据）
-  [OUTPUT]: 三顾茅庐前剧本的壳：双击即玩，开场可读上一局档案
-  [POS]: war_shape 的剧本壳之一；engine.js 是玩法，各 story-xxx.js 是内容。加新剧本就复制本文件换两处引用
-  [PROTOCOL]: 改机制去改 engine.js；改剧情去改 story-sangu.js；本文件只换标题和引用
+  [INPUT]: 依赖 engine.js（玩法） + story-changban.js（剧本数据）
+  [OUTPUT]: 长坂坡剧本的壳：双击即玩，开场可读三顾茅庐前通关档案
+  [POS]: war_shape 的剧本壳之一；与 game.html 同形，只换标题和剧本引用
+  [PROTOCOL]: 改机制去改 engine.js；改剧情去改 story-changban.js；本文件只换标题和引用
 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>war_shape · 三顾茅庐前</title>
+<title>war_shape · 长坂坡</title>
 <link rel="icon" href="data:,">
 <style>
   body { font-family: "PingFang SC", "Microsoft YaHei", serif; background: #1a1512; color: #e8dcc8; margin: 0; padding: 20px; }
@@ -35,7 +35,7 @@
 </head>
 <body>
 <div id="app"></div>
-<script src="story-sangu.js"></script>
+<script src="story-changban.js"></script>
 <script src="engine.js"></script>
 </body>
 </html>
