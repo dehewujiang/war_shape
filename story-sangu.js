@@ -9,6 +9,7 @@ window.STORY = {
   title: "三顾茅庐前",
   subtitle: "你是刘备。徐庶走了，卧龙还没请到——历史给你留了四道门。",
   firstStory: true, // 第一局：白身开局，不出粘卡屏，直接进
+  nextStory: { file: "changban.html", title: "长坂坡" }, // 通关后结局页出"下一关"按钮；没有这行就是最后一关
   deeds: { xumin: ["民望"], linxue: ["军望"], letter_bimen: ["失信"] }, // 通关蒸名声：旗→名，下一局只认名不认事
   scenes: [
     {
@@ -105,7 +106,9 @@ window.STORY = {
           flag: "anfu", flagText: "你安抚过门外的兄弟" },
         { text: "当众斥责：军中无戏言", score: { ba: 1 },
           echo: "门外死一般寂静，只剩刀鞘声。",
-          flag: "chize", flagText: "你当众斥责过兄弟" }
+          flag: "chize", flagText: "你当众斥责过兄弟" },
+        { text: "请孔明同出门迎：先生金面，胜我千言", score: { zhi: 1 },
+          echo: "孔明笑着起身，与你并肩出了门。" }
       ]
     },
     {

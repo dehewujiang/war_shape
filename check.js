@@ -10,7 +10,7 @@ const ROOT = __dirname;
 
 // 改剧本（增删选项/场景）后，同步改这里；数字对不上即失败，逼人确认是预期变化还是意外断裂
 const EXPECTED = {
-  "story-sangu.js": 4374,
+  "story-sangu.js": 6561,
   "story-changban.js": 583929,
 };
 

@@ -141,8 +141,16 @@
     html += "</ul>";
     html += "<p style='color:#a89880;font-size:13px'>通关档案：仁 " + s.ren + " · 霸 " + s.ba + " · 智 " + s.zhi
       + "（" + ed.name + "）——下一剧本开场会读这张卡。</p>";
+    // 没走过的路点名留人：三个结局名全亮出来，换条路走走故事不一样
+    var others = ["ren", "ba", "zhi"].filter(function (k) { return k !== dim; })
+      .map(function (k) { return S.endings[k].name; });
+    html += "<p style='color:#a89880;font-size:13px'>这一局你走进了「" + ed.name + "」——「"
+      + others.join("」「") + "」两条路还没走过，换条路走走，故事不一样。</p>";
     html += "<div class='row'><button class='big' id='again'>再走一次</button>"
-      + "<button class='big ghost' id='copy'>复制档案</button></div></div>";
+      + "<button class='big ghost' id='copy'>复制档案</button>";
+    // 有下一关才给按钮（最后一关没有这行配置，按钮就不出现）
+    if (S.nextStory) html += "<button class='big' id='next'>下一关：" + S.nextStory.title + "</button>";
+    html += "</div></div>";
     app.innerHTML = html;
     // 通关即存卡：本局大事按 deeds 蒸成名声跟走；无名声不拼段，老卡格式不变
     var tags = [];
@@ -157,6 +165,9 @@
       var txt = cardTxt;
       if (navigator.clipboard) navigator.clipboard.writeText(txt);
       this.textContent = "已复制！";
+    });
+    if (S.nextStory) document.getElementById("next").addEventListener("click", function () {
+      window.location.href = S.nextStory.file;
     });
   }
 
