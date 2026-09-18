@@ -12,6 +12,7 @@ const ROOT = __dirname;
 const EXPECTED = {
   "story-sangu.js": 6561,
   "story-changban.js": 583929,
+  "story-chibi.js": 27,
 };
 
 function loadStory(file) {
@@ -127,7 +128,7 @@ function checkRefs(file, S) {
   const flagSet = new Set();
   S.scenes.forEach(sc => sc.options.forEach(op => { if (op.flag) flagSet.add(op.flag); }));
   const letterIds = new Set(Object.keys(S.letters || {}));
-  (S.letters || {}) && Object.entries(S.letters).forEach(([id, L]) => {
+  (S.letters || {}) && Object.entries(S.letters || {}).forEach(([id, L]) => {
     if (typeof L.fireAct !== "number") condemn(file + ": 信 " + id + " 缺 fireAct");
   });
   const buried = new Set();
@@ -193,6 +194,7 @@ function mergeHits(dst, src) {
 const onlyFiles = process.argv.slice(2);
 const STORIES = [
   { file: "story-sangu.js", archives: [null] },
+  { file: "story-chibi.js", archives: [null] }, // 赤壁暂无名声变体/专属门，无档枚举下用了判死刑，故只跑无卡
   {
     file: "story-changban.js",
     // 73 配置 = 无卡 + 3开场 × 3门(无/仁/霸) × 8名声子集

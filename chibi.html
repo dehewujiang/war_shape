@@ -1,0 +1,52 @@
+<!--
+  [INPUT]: 依赖 engine.js（玩法） + story-chibi.js（剧本数据）
+  [OUTPUT]: 赤壁剧本的壳：双击即玩，开场可读长坂坡通关档案
+  [POS]: war_shape 的剧本壳之一；与 game.html 同形，只换标题和剧本引用
+  [PROTOCOL]: 改机制去改 engine.js；改剧情去改 story-chibi.js；本文件只换标题和引用
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>war_shape · 赤壁</title>
+<link rel="icon" href="data:,">
+<style>
+  body { font-family: "PingFang SC", "Microsoft YaHei", serif; background: #f3ecdc; color: #2e2419; margin: 0; padding: 20px; }
+  #app { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 22px; text-align: center; letter-spacing: 4px; color: #2e2419; }
+  .sub { text-align: center; color: #7a6a52; font-size: 14px; margin-bottom: 16px; }
+  .bar { display: flex; justify-content: space-between; background: #e9dfc8; border: 1px solid #c9b98f; border-radius: 8px; padding: 10px 14px; font-size: 15px; font-weight: bold; color: #7a5c14; margin-bottom: 12px; }
+  .scene { background: #fffaf0; border: 1px solid #d8c9a3; border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+  .scene h2 { font-size: 19px; margin: 0 0 12px; color: #8a5f0e; }
+  .scene p { line-height: 2; font-size: 17px; }
+  .echo { color: #5d4a26; border-left: 3px solid #b98f1f; background: #f0e6cc; border-radius: 0 8px 8px 0; padding: 8px 12px; }
+  button.opt { display: block; width: 100%; text-align: left; margin: 10px 0; padding: 14px; font-size: 16px; line-height: 1.6;
+    background: #fffaf0; color: #2e2419; border: 1px solid #b3a071; border-radius: 8px; cursor: pointer; }
+  button.opt:hover { background: #f3e8cd; border-color: #8a6410; }
+  button.opt:active { background: #e9dcba; transform: translateY(1px); }
+  button.opt:focus-visible { outline: 2px solid #8a6410; outline-offset: 2px; }
+  .card { background: #fffaf0; border: 2px solid #b98f1f; border-radius: 10px; padding: 20px; }
+  .card h2 { color: #8a5f0e; margin-top: 0; }
+  .card li { line-height: 2; font-size: 16px; }
+  .card p { font-size: 16px; }
+  .cardin { width: 100%; box-sizing: border-box; background: #fffdf6; color: #2e2419; border: 1px solid #b3a071; border-radius: 8px; padding: 10px; font-size: 16px; }
+  .row { text-align: center; margin-top: 16px; }
+  button.big { padding: 12px 26px; margin: 4px 8px; font-size: 16px; border-radius: 8px; cursor: pointer;
+    background: #9c2b1e; color: #fff7e8; border: none; }
+  button.big:active { background: #7e2318; transform: translateY(1px); }
+  button.ghost { background: transparent; color: #7a6a52; border: 1px solid #c9b98f; }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    h1 { font-size: 20px; }
+    .scene, .card { padding: 14px; }
+    button.opt { padding: 14px 12px; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="story-chibi.js"></script>
+<script src="engine.js"></script>
+</body>
+</html>
