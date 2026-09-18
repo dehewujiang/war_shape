@@ -154,6 +154,7 @@ function checkRefs(file, S) {
       && !["人和之主", "立威之主", "谋定之主"].includes(k))
       condemn(file + ": openings 有上局认不出的键 " + k);
   });
+  if (typeof S.briefing !== "string" || !S.briefing) condemn(file + ": 缺开局战报 briefing（每局必须有一段，只播一次）");
   const ek = Object.keys(S.endingExtras || {}), fo = S.flagOrder || [];
   if (ek.length !== fo.length || ek.some(k => fo.indexOf(k) < 0))
     condemn(file + ": endingExtras 与 flagOrder 不对齐");

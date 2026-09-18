@@ -3,7 +3,7 @@
  * [OUTPUT]: 双击即玩的文字选择游戏：读卡开场/进度/选项/承接句/结局判定/通关档案
  * [POS]: war_shape 的引擎文件；各 story-xxx.js 是内容，本文件是玩法。加新剧本只需配新 STORY 数据 + 一个同类 html 壳
  * [PROTOCOL]: 改机制（新分数/新算法/读卡规则）改本文件；改剧情去改对应 story-xxx.js
- * 约定：开场可粘上一局通关档案（没有也能玩）；档案换开场白、名声回响和专属选项，不加分——每局的秤清零重称
+ * 约定：开场可粘上一局通关档案（没有也能玩）；档案换开场白、名声回响和专属选项，不加分——每局的秤清零重称；开场先播战报再认人
  */
 (function () {
   var S = window.STORY;
@@ -60,6 +60,8 @@
     var html = "<h1>" + S.title + "</h1><div class='sub'>" + S.subtitle + "</div>";
     html += "<div class='bar'><span>第 " + sc.act + " 幕 / 共 " + totalActs + " 幕</span></div>";
     html += "<div class='scene'><h2>" + sc.title + "</h2>";
+    // 战报：每局只播一次，拼在开场白之前；与认人分家（战报先，认人后）
+    if (state.i === 0 && S.briefing) html += "<p class='echo'>" + S.briefing + "</p>";
     // 开场白：第一幕先看档案认人（有卡用专属版，无卡用默认版）
     if (state.i === 0 && S.openings) {
       var op = (state.archive && S.openings[state.archive.name]) || S.openings["default"];
